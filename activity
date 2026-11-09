@@ -1,0 +1,154 @@
+'use client';
+
+import { useState } from 'react';
+
+export default function TaskTracker() {
+  const [tasks, setTasks] = useState([]);
+  const [taskTitle, setTaskTitle] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const handleTitleChange = (e) => {
+    setTaskTitle(e.target.value);
+    if (errorMessage) setErrorMessage('');
+  };
+
+  const handleAddTask = () => {
+    const trimmedTitle = taskTitle.trim();
+
+    if (trimmedTitle === '') {
+      setErrorMessage('Task title cannot be empty.');
+      return;
+    }
+
+    const newTask = {
+      id: Date.now(),
+      title: trimmedTitle,
+      completed: false,
+    };
+
+    setTasks([...tasks, newTask]);
+    setTaskTitle('');
+    setErrorMessage('');
+  };
+
+  const toggleTask = (id) => {
+    setTasks(
+      tasks.map((task) =>
+        task.id === id ? { ...task, completed: !task.completed } : task
+      )
+    );
+  };
+
+  const deleteTask = (id) => {
+    setTasks(tasks.filter((task) => task.id !== id));
+  };
+
+  return (
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#ffffff',
+        color: '#111111',
+        fontFamily: 'system-ui, sans-serif',
+        display: 'flex',
+        justifyContent: 'center',
+        padding: '80px 16px',
+      }}
+    >
+      <div style={{ width: '100%', maxWidth: '380px' }}>
+        <h1 style={{ fontSize: '20px', fontWeight: 500, margin: '0 0 32px' }}>
+          Tasks
+        </h1>
+
+        <div style={{ display: 'flex', gap: '12px' }}>
+          <input
+            type="text"
+            value={taskTitle}
+            onChange={handleTitleChange}
+            onKeyDown={(e) => e.key === 'Enter' && handleAddTask()}
+            placeholder="Add a task"
+            style={{
+              flex: 1,
+              padding: '8px 0',
+              border: 'none',
+              borderBottom: errorMessage ? '1px solid #dc2626' : '1px solid #111111',
+              background: 'transparent',
+              color: '#111111',
+              fontSize: '15px',
+              outline: 'none',
+            }}
+          />
+          <button
+            onClick={handleAddTask}
+            style={{
+              border: 'none',
+              background: 'transparent',
+              color: '#111111',
+              fontSize: '15px',
+              cursor: 'pointer',
+            }}
+          >
+            Add
+          </button>
+        </div>
+
+        {errorMessage && (
+          <p style={{ color: '#dc2626', fontSize: '13px', margin: '8px 0 0' }}>
+            {errorMessage}
+          </p>
+        )}
+
+        {tasks.length === 0 ? (
+          <p style={{ color: '#999999', fontSize: '14px', marginTop: '40px' }}>
+            No tasks added yet. Start by creating one above!
+          </p>
+        ) : (
+          <ul style={{ listStyle: 'none', padding: 0, margin: '32px 0 0' }}>
+            {tasks.map((task) => (
+              <li
+                key={task.id}
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '12px',
+                  padding: '12px 0',
+                  borderBottom: '1px solid #eeeeee',
+                }}
+              >
+                <input
+                  type="checkbox"
+                  checked={task.completed}
+                  onChange={() => toggleTask(task.id)}
+                  style={{ cursor: 'pointer', accentColor: '#111111' }}
+                />
+                <span
+                  style={{
+                    flex: 1,
+                    fontSize: '15px',
+                    textDecoration: task.completed ? 'line-through' : 'none',
+                    color: task.completed ? '#bbbbbb' : '#111111',
+                  }}
+                >
+                  {task.title}
+                </span>
+                <button
+                  onClick={() => deleteTask(task.id)}
+                  aria-label="Delete task"
+                  style={{
+                    border: 'none',
+                    background: 'transparent',
+                    color: '#bbbbbb',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  ×
+                </button>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </main>
+  );
+}
